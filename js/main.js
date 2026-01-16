@@ -9,6 +9,7 @@
    ============================ */
 
 const canvas = document.getElementById("gameCanvas");
+const uiController = new UIController();
 
 if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error("Canvas element not found or invalid");
@@ -73,6 +74,8 @@ const cat = new Player({
 
 const pathfinder = new DFSPathfinder(maze);
 
+const players = uiController.playerCount;
+
 const game = new Game(ctx, maze, cat, mouse, cheese, pathfinder);
 
-new UIController(game);
+uiController.setGame(game);
