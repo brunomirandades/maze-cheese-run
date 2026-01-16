@@ -120,9 +120,21 @@ export*/class Game {
 
         // Debug
         // this.#drawGrid();
-        this.#drawPath(this.mouse.path, "rgba(0, 0, 255, 0.2"); // Mouse path -> blue
-        this.#drawPath(this.cat.path, "rgba(255, 0, 0, 0.2"); // Cat path -> red
+        this.#drawPath(
+            this.mouse.path,
+            this.mouse.pathIndex,
+            this.mouse.x,
+            this.mouse.y,
+            "rgba(0,0,255,0.15)"
+        );
 
+        this.#drawPath(
+            this.cat.path,
+            this.cat.pathIndex,
+            this.cat.x,
+            this.cat.y,
+            "rgba(255,0,0,0.15)"
+        );
 
         if (this.state === GameState.ENDED) {
             this.#drawWinScreen();
@@ -204,26 +216,35 @@ export*/class Game {
         ctx.restore(); // important so dash does not affect other drawings
     }
 
-    #drawPath(path, color) {
-        if (!path || path.length < 2) return;
+    #drawPath(path, index, playerX, playerY, color) {
+        if (!path || path.length < 2 || index <= 0) return;
 
         const ctx = this.ctx;
+        const size = this.maze.cellSize;
+
+        ctx.save();
         ctx.strokeStyle = color;
-        ctx.lineWidth = this.maze.cellSize / 3;
+        ctx.lineWidth = size / 3;
         ctx.lineCap = "round";
+        ctx.lineJoin = "round"; // smooth corners
 
         ctx.beginPath();
 
-        for (let i = 0; i < path.length; i++) {
+        // Draw completed segments
+        for (let i = 0; i < index; i++) {
             const cell = path[i];
-            const x = cell.col * this.maze.cellSize + this.maze.cellSize / 2;
-            const y = cell.row * this.maze.cellSize + this.maze.cellSize / 2;
+            const x = cell.col * size + size / 2;
+            const y = cell.row * size + size / 2;
 
             if (i === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
         }
 
+        // Draw partial segment to current player position
+        ctx.lineTo(playerX, playerY);
+
         ctx.stroke();
+        ctx.restore();
     }
 
     /* --------------------------------
