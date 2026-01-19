@@ -31,8 +31,13 @@ canvas.height = CANVAS_HEIGHT;
 const maze = new Maze(CANVAS_WIDTH, CANVAS_HEIGHT, CELL_SIZE);
 
 const entrances = [
-    { row: 0, col: Math.floor(maze.cols / 2) },                  // Top
+    { row: 0, col: 0 },                                         // Top Left
+    { row: 0, col: Math.floor(maze.cols / 2) },                 // Top
+    { row: 0, col: maze.cols - 1 },                             // Top Right
+    { row: Math.floor(maze.rows / 2), col: maze.cols - 1 },     // Right
+    { row: maze.rows - 1, col: maze.cols - 1 },                 // Bottom Right
     { row: maze.rows - 1, col: Math.floor(maze.cols / 2) },     // Bottom
+    { row: maze.rows - 1, col: 0 },                             // Bottom Left
     { row: Math.floor(maze.rows / 2), col: 0 },                 // Left
     { row: Math.floor(maze.rows / 2), col: maze.cols - 1 }      // Right
 ];
