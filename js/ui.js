@@ -14,8 +14,6 @@
         this.playerInput = document.getElementById("player-count");
         this.playerValue = document.getElementById("player-count-value");
 
-        this.playerCount = this.#getSafePlayerCount(this.playerInput.value);
-
         this.#validate();
         this.#bind();
     }
@@ -54,7 +52,7 @@
         }
         
         this.playerInput.addEventListener("input", () => {
-            const count = this.getSafePlayerCount(this.playerInput.value);
+            const count = this.#getSafePlayerCount(this.playerInput.value);
             this.playerCount = count;
             this.playerValue.textContent = count;
         });
@@ -65,6 +63,10 @@
 
         this.game = game;
         this.#bind();
+    }
+
+    getPlayerCount() {
+        return this.#getSafePlayerCount(this.playerInput.value);
     }
 
     #getSafePlayerCount(value) {

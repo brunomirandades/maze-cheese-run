@@ -39,7 +39,6 @@ const entrances = [
     { row: maze.rows - 1, col: Math.floor(maze.cols / 2) },     // Bottom
     { row: maze.rows - 1, col: 0 },                             // Bottom Left
     { row: Math.floor(maze.rows / 2), col: 0 },                 // Left
-    { row: Math.floor(maze.rows / 2), col: maze.cols - 1 }      // Right
 ];
 
 function pickTwoDifferentEntrances(list) {
@@ -79,7 +78,7 @@ const cat = new Player({
 
 const pathfinder = new DFSPathfinder(maze);
 
-const players = uiController.playerCount;
+const players = uiController.getPlayerCount();
 
 const game = new Game(ctx, maze, cat, mouse, cheese, pathfinder);
 
