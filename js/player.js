@@ -3,11 +3,12 @@
    ============================ */
 
 /*export*/ class Player {
-    constructor({ row, col, emoji, speed }) {
+    constructor({ row, col, emoji, speed, color }) {
         this.row = row;
         this.col = col;
         this.emoji = emoji;
         this.speed = speed; // cells per second
+        this.color = color;
 
         // Path produced by DFS
         this.path = [];
