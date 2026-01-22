@@ -87,9 +87,9 @@ export*/class Game {
         for (const player of this.players) {
             if (player.isOnSameCell(this.cheese)) {
                 this.winner = player;
-            this.state = GameState.ENDED;
+                this.state = GameState.ENDED;
                 break;
-        }
+            }
         }
     }
 
@@ -242,8 +242,8 @@ export*/class Game {
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         // Box geometry
-        const boxW = 300;
-        const boxH = 180;
+        const boxW = 320;
+        const boxH = 200;
         const x = (CANVAS_WIDTH - boxW) / 2;
         const y = (CANVAS_HEIGHT - boxH) / 2;
         const r = 20;
@@ -279,14 +279,36 @@ export*/class Game {
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
 
-        // Text
-        ctx.fillStyle = "#000";
-        ctx.font = "32px sans-serif";
+        const winnerEmoji = this.winner.emoji;
+        const colorName = this.winner.color.name;
+        const colorEmoji = this.winner.color.emoji;
+
+        // Emojis and text
+        ctx.font = "64px serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        ctx.fillStyle = "#000000ff";
 
-        const emoji = this.winner === "cat" ? "🐱" : "🐭";
-        ctx.fillText(`${emoji} WINS!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+        ctx.fillText(
+            `${EMOJIS.throphy} ${colorEmoji} ${EMOJIS.throphy}`,
+            CANVAS_WIDTH / 2,
+            y + 60
+        );
+
+        ctx.font = "24px monospace";
+        ctx.fillText(
+            `${EMOJIS.medal} ${colorName.toUpperCase()} ${winnerEmoji} WINS ${EMOJIS.medal}`,
+            CANVAS_WIDTH / 2,
+            y + 120
+        );
+
+        ctx.font = "16px monospace";
+        ctx.fillText(
+            `Press Reset for new round!`,
+            CANVAS_WIDTH / 2,
+            y + 160
+        );
+
     }
 
 }
