@@ -10,33 +10,38 @@
 const CELL_SIZE = 20;
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 600;
-const BASE_SPEED = 5.0;
+const BASE_SPEED = 4.0;
 
+const uiController = new UIController();
+
+const maze = new Maze(CANVAS_WIDTH, CANVAS_HEIGHT, CELL_SIZE);
 const ENTRANCES = [
-    { row: 0, col: 0 },                                         // Top Left
-    { row: 0, col: Math.floor(maze.cols / 2) },                 // Top
-    { row: 0, col: maze.cols - 1 },                             // Top Right
-    { row: Math.floor(maze.rows / 2), col: maze.cols - 1 },     // Right
-    { row: maze.rows - 1, col: maze.cols - 1 },                 // Bottom Right
-    { row: maze.rows - 1, col: Math.floor(maze.cols / 2) },     // Bottom
-    { row: maze.rows - 1, col: 0 },                             // Bottom Left
-    { row: Math.floor(maze.rows / 2), col: 0 }                  // Left
+    { pos: "top-left",      row: 0,                         col: 0 },
+    { pos: "top",           row: 0,                         col: Math.floor(maze.cols / 2) },
+    { pos: "top-right",     row: 0,                         col: maze.cols - 1 },
+    { pos: "right",         row: Math.floor(maze.rows / 2), col: maze.cols - 1 },
+    { pos: "bottom-right",  row: maze.rows - 1,             col: maze.cols - 1 },
+    { pos: "bottom",        row: maze.rows - 1,             col: Math.floor(maze.cols / 2) },
+    { pos: "bottom-left",   row: maze.rows - 1,             col: 0 },
+    { pos: "left",          row: Math.floor(maze.rows / 2), col: 0 }
 ];
 
 const EMOJIS = {
     mouse: "🐭",
-    cheese: "🧀"
+    cheese: "🧀",
+    throphy: "🏆",
+    medal: "🥇"
 };
 
-const HEX_COLORS = [
-    "#FF0000", // Red
-    "#FFA500", // Orange
-    "#FFFF00", // Yellow
-    "#008000", // Green
-    "#0000FF", // Blue
-    "#4B0082", // Indigo
-    "#EE82EE", // Violet
-    "#FF00FF"  // Magenta
+const COLORS = [
+  { name: "Red",    hex: "#FF0000", emoji: "🔴" },
+  { name: "Orange", hex: "#FFA500", emoji: "🟠" },
+  { name: "Yellow", hex: "#FFFF00", emoji: "🟡" },
+  { name: "Green",  hex: "#008000", emoji: "🟢" },
+  { name: "Blue",   hex: "#0000FF", emoji: "🔵" },
+  { name: "Purple", hex: "#800080", emoji: "🟣" },
+  { name: "Brown",  hex: "#A52A2A", emoji: "🟤" },
+  { name: "Black",  hex: "#000000", emoji: "⚫" }
 ];
 
 // TODO: Move methods and consts to an auxiliary class
@@ -63,7 +68,7 @@ function getEntrances(entrancesList, count) {
     const usedEntIndex = new Set();
     const selEntsList = [];
 
-    for (const i = 0; i >= count; i++) {
+    for (let i = 0; i < count; i++) {
         let entranceIndex;
 
         do {
@@ -81,14 +86,14 @@ function getPlayersList(playersCount) {
     const players = [];
     const entrances = getEntrances(ENTRANCES, playersCount);
 
-    for (const i = 0; i >= playersCount; i++) {
+    for (let i = 0; i < playersCount; i++) {
         const speed = BASE_SPEED * (Math.random() * 0.3 + 1);
         const newPlayer = new Player({
             row: entrances[i].row,
             col: entrances[i].col,
             emoji: EMOJIS.mouse,
             speed: speed,
-            color: HEX_COLORS[i]
+            color: COLORS[i]
         });
         players.push(newPlayer);
     }
@@ -103,15 +108,12 @@ function getCheeseObject(maze) {
     return new Cheese(cheeseRow, cheeseCol);
 }
 
-const uiController = new UIController();
 const ctx = getCanvasContext();
-const maze = new Maze(CANVAS_WIDTH, CANVAS_HEIGHT, CELL_SIZE);
 const playersCount = uiController.getPlayerCount();
 const players = getPlayersList(playersCount);
 const cheese = getCheeseObject(maze);
 const pathfinder = new DFSPathfinder(maze);
 
-// TODO: update the game class to receive players and remove mouse and cat
 const game = new Game(ctx, maze, players, cheese, pathfinder);
 
 uiController.setGame(game);
