@@ -5,11 +5,10 @@
 /*import { GameState } from "./gamestate.js";
 
 export*/class Game {
-    constructor(ctx, maze, cat, mouse, cheese, pathfinder) {
+    constructor(ctx, maze, players, cheese, pathfinder) {
         this.ctx = ctx;
         this.maze = maze;
-        this.cat = cat;
-        this.mouse = mouse;
+        this.players = players;
         this.cheese = cheese;
         this.pathfinder = pathfinder;
 
@@ -18,7 +17,7 @@ export*/class Game {
         this.winner = null;
 
         // Setting player paths
-        this.#setPlayerPaths();
+        this.#setPlayersPaths();
     }
 
     /* --------------------------------
@@ -60,50 +59,37 @@ export*/class Game {
        -------------------------------- */
     update(deltaTime) {
         // Move players
-        this.mouse.update(deltaTime, this.maze.cellSize);
-        this.cat.update(deltaTime, this.maze.cellSize);
+        for (const player of this.players) {
+            player.update(deltaTime, this.maze.cellSize);
+        }
 
         // Check win conditions
         this.#checkWin();
     }
 
-    #setPlayerPaths() {
-        this.mouse.setPath(this.pathfinder.findPathDFS(this.mouse, this.cheese));
-        const intercept = this.#getInterceptCell();
-        this.cat.setPath(this.pathfinder.findPathBFS(this.cat, intercept));
-    }
+    #setPlayersPaths() {
+        const strategies = [
+            this.pathfinder.findPathBFS.bind(this.pathfinder),
+            this.pathfinder.findPathDFS.bind(this.pathfinder)
+        ];
 
-    #getInterceptCell() {
-        if (!this.mouse.path || this.mouse.path.length === 0) {
-            return this.mouse.cell;
+        for (const player of this.players) {
+            const strategy = strategies[Math.floor(Math.random() * strategies.length)];
+
+            player.setPath(strategy(player, this.cheese));
         }
-
-        // Cat speed advantage (15–20%)
-        const speedRatio = this.cat.speed / this.mouse.speed;
-
-        // How far ahead on the mouse path the cat should aim
-        const lead = Math.floor(this.mouse.path.length * 0.35 * speedRatio);
-
-        const index = Math.min(
-            this.mouse.path.length - 1,
-            Math.max(0, lead)
-        );
-
-        return this.mouse.path[index];
     }
 
     /* --------------------------------
        Win logic
        -------------------------------- */
     #checkWin() {
-        if (this.mouse.isOnSameCell(this.cheese)) {
-            this.winner = "mouse";
+        for (const player of this.players) {
+            if (player.isOnSameCell(this.cheese)) {
+                this.winner = player;
             this.state = GameState.ENDED;
+                break;
         }
-
-        if (this.cat.isOnSameCell(this.mouse)) {
-            this.winner = "cat";
-            this.state = GameState.ENDED;
         }
     }
 
@@ -115,26 +101,24 @@ export*/class Game {
 
         this.#drawMaze();
         this.cheese.draw(this.ctx, this.maze.cellSize);
-        this.mouse.draw(this.ctx);
-        this.cat.draw(this.ctx);
+
+        for (const player of this.players) {
+            // Draw player
+            player.draw(this.ctx);
+
+            // Draw player's path
+            const transpColor = `${player.color.hex}26`;    // Adding transparency
+            this.#drawPath(
+                player.path,
+                player.pathIndex,
+                player.x,
+                player.y,
+                transpColor
+            );
+        }
 
         // Debug
         // this.#drawGrid();
-        this.#drawPath(
-            this.mouse.path,
-            this.mouse.pathIndex,
-            this.mouse.x,
-            this.mouse.y,
-            "rgba(0,0,255,0.15)"
-        );
-
-        this.#drawPath(
-            this.cat.path,
-            this.cat.pathIndex,
-            this.cat.x,
-            this.cat.y,
-            "rgba(255,0,0,0.15)"
-        );
 
         if (this.state === GameState.ENDED) {
             this.#drawWinScreen();
