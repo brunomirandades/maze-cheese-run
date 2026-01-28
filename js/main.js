@@ -4,116 +4,115 @@
 // import { Game } from "./game.js";
 // import { UIController } from "./ui.js";
 
-/* ============================
-   Safe canvas initialization
-   ============================ */
-const CELL_SIZE = 20;
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 600;
-const BASE_SPEED = 4.0;
+const {canvas, ctx} = GameSupport.getCanvasContext();
 
-const uiController = new UIController();
+let game = null;
 
-const maze = new Maze(CANVAS_WIDTH, CANVAS_HEIGHT, CELL_SIZE);
-const ENTRANCES = [
-    { pos: "top-left",      row: 0,                         col: 0 },
-    { pos: "top",           row: 0,                         col: Math.floor(maze.cols / 2) },
-    { pos: "top-right",     row: 0,                         col: maze.cols - 1 },
-    { pos: "right",         row: Math.floor(maze.rows / 2), col: maze.cols - 1 },
-    { pos: "bottom-right",  row: maze.rows - 1,             col: maze.cols - 1 },
-    { pos: "bottom",        row: maze.rows - 1,             col: Math.floor(maze.cols / 2) },
-    { pos: "bottom-left",   row: maze.rows - 1,             col: 0 },
-    { pos: "left",          row: Math.floor(maze.rows / 2), col: 0 }
-];
+resizeCanvas(canvas);
+window.addEventListener("resize", () => resizeCanvas(canvas));
 
-const EMOJIS = {
-    mouse: "🐭",
-    cheese: "🧀",
-    throphy: "🏆",
-    medal: "🥇"
-};
+document.getElementById("startBtn").onclick = startGame;
+document.getElementById("stopBtn").onclick = stopGame;
+document.getElementById("resetBtn").onclick = resetGame;
+const playerCountLabel = document.getElementById("player-count-value");
+const playerCountInput = document.getElementById("player-count");
 
-const COLORS = [
-  { name: "Red",    hex: "#FF0000", emoji: "🔴" },
-  { name: "Orange", hex: "#FFA500", emoji: "🟠" },
-  { name: "Yellow", hex: "#FFFF00", emoji: "🟡" },
-  { name: "Green",  hex: "#008000", emoji: "🟢" },
-  { name: "Blue",   hex: "#0000FF", emoji: "🔵" },
-  { name: "Purple", hex: "#800080", emoji: "🟣" },
-  { name: "Brown",  hex: "#A52A2A", emoji: "🟤" },
-  { name: "Black",  hex: "#000000", emoji: "⚫" }
-];
+playerCountInput.addEventListener("input", () => {
+    playerCountLabel.textContent = parseInt(playerCountInput.value);
+});
 
-// TODO: Move methods and consts to an auxiliary class
-function getCanvasContext() {
-    const canvas = document.getElementById("gameCanvas");
+updateUIElements();
 
-    if (!(canvas instanceof HTMLCanvasElement)) {
-        throw new Error("Canvas element not found or invalid");
-    }
+function updateUIElements() {
+    playerCountInput.dispatchEvent(new Event('input'));
 
-    canvas.width = CANVAS_WIDTH;
-    canvas.height = CANVAS_HEIGHT;
-
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-        throw new Error("Failed to get 2D context");
-    }
-
-    return ctx;
+    // More elements will be added in the future
+    return;
 }
 
-function getEntrances(entrancesList, count) {
-    const usedEntIndex = new Set();
-    const selEntsList = [];
+function getUISettings() {
+    const playerCount = parseInt(playerCountInput.value);
 
-    for (let i = 0; i < count; i++) {
-        let entranceIndex;
-
-        do {
-            entranceIndex = Math.floor(Math.random() * entrancesList.length);
-        } while (usedEntIndex.has(entranceIndex));
-
-        usedEntIndex.add(entranceIndex);
-        selEntsList.push(entrancesList[entranceIndex]);
-    }
-
-    return selEntsList;
+    // Returning as obj because more UI settings will
+    // be added in the future
+    return { playerCount };
 }
 
-function getPlayersList(playersCount) {
-    const players = [];
-    const entrances = getEntrances(ENTRANCES, playersCount);
+function getGameParameters() {
+    const maze = new Maze(canvas.width, canvas.height, CELL_SIZE);
 
-    for (let i = 0; i < playersCount; i++) {
-        const speed = BASE_SPEED * (Math.random() * 0.3 + 1);
-        const newPlayer = new Player({
-            row: entrances[i].row,
-            col: entrances[i].col,
-            emoji: EMOJIS.mouse,
-            speed: speed,
-            color: COLORS[i]
-        });
-        players.push(newPlayer);
+    const entrances = [
+        { pos: "top-left",      row: 0,                         col: 0 },
+        { pos: "top",           row: 0,                         col: Math.floor(maze.cols / 2) },
+        { pos: "top-right",     row: 0,                         col: maze.cols - 1 },
+        { pos: "right",         row: Math.floor(maze.rows / 2), col: maze.cols - 1 },
+        { pos: "bottom-right",  row: maze.rows - 1,             col: maze.cols - 1 },
+        { pos: "bottom",        row: maze.rows - 1,             col: Math.floor(maze.cols / 2) },
+        { pos: "bottom-left",   row: maze.rows - 1,             col: 0 },
+        { pos: "left",          row: Math.floor(maze.rows / 2), col: 0 }
+    ];
+
+    const { playerCount } = getUISettings();
+
+    const players = GameSupport.createPlayers(
+        playerCount,
+        entrances
+    );
+
+    const cheese = GameSupport.createCheese(maze);
+    const pathfinder = new DFSPathfinder(maze);
+
+    return {
+        maze,
+        players,
+        cheese,
+        pathfinder
+    };
+}
+
+function startGame() {
+    if (game && game.state == GameState.RUNNING) return;    // avoid double loops
+
+    if (!game) {
+        const { maze, players, cheese, pathfinder } = getGameParameters();
+        game = new Game(ctx, maze, players, cheese, pathfinder);
     }
+
+    game.start();
+    return;
+}
+
+function stopGame() {
+    if (!game) return;
     
-    return players;
+    // TODO: check if needed to add a game
+    // animationId and cancelAnimationFrame
+    game.stop();
+    return;
 }
 
-function getCheeseObject(maze) {
-    const cheeseRow = Math.floor(maze.rows / 2);
-    const cheeseCol = Math.floor(maze.cols / 2);
+function resetGame() {
+    stopGame();
 
-    return new Cheese(cheeseRow, cheeseCol);
+    game = null;
+
+    startGame();
+    return;
 }
 
-const ctx = getCanvasContext();
-const playersCount = uiController.getPlayerCount();
-const players = getPlayersList(playersCount);
-const cheese = getCheeseObject(maze);
-const pathfinder = new DFSPathfinder(maze);
+function resizeCanvas(canvas) {
+    const isMobile = window.innerWidth < 900;
 
-const game = new Game(ctx, maze, players, cheese, pathfinder);
+    if (isMobile) {
+        canvas.width = Math.min(window.innerWidth, 360);
+        canvas.height = Math.floor(window.innerHeight * 0.7);
+    } else {
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+    }
 
-uiController.setGame(game);
+    if (game)
+        resetGame();
+
+    return;
+}

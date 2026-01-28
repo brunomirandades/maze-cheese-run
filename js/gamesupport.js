@@ -14,16 +14,13 @@ class GameSupport {
             throw new Error("Canvas element not found or invalid");
         }
 
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
-
         const ctx = canvas.getContext("2d");
 
         if (!ctx) {
             throw new Error("Failed to get 2D context");
         }
 
-        return ctx;
+        return { canvas, ctx };
     }
 
     /**
