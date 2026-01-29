@@ -17,6 +17,7 @@ export*/class Game {
         this.state = GameState.STOPPED;
         this.lastTime = 0;
         this.winner = null;
+        this.animationId = null;
 
         // Setting player paths
         this.#setPlayersPaths();
@@ -30,7 +31,7 @@ export*/class Game {
 
         this.state = GameState.RUNNING;
         this.lastTime = performance.now();
-        requestAnimationFrame(this.#loop.bind(this));
+        this.animationId = requestAnimationFrame(this.#loop.bind(this));
     }
 
     /* --------------------------------
@@ -38,7 +39,9 @@ export*/class Game {
        -------------------------------- */
     stop() {
         if (this.state !== GameState.RUNNING) return;
+        
         this.state = GameState.STOPPED;
+        cancelAnimationFrame(this.animationId);
     }
 
     /* --------------------------------
@@ -53,7 +56,7 @@ export*/class Game {
         this.update(deltaTime);
         this.render();
 
-        requestAnimationFrame(this.#loop.bind(this));
+        this.animationId = requestAnimationFrame(this.#loop.bind(this));
     }
 
     /* --------------------------------
