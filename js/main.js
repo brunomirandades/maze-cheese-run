@@ -7,6 +7,7 @@
 const {canvas, ctx} = GameSupport.getCanvasContext();
 
 let game = null;
+let isMobile = false;
 
 resizeCanvas(canvas);
 window.addEventListener("resize", () => resizeCanvas(canvas));
@@ -39,20 +40,30 @@ function getUISettings() {
 }
 
 function getGameParameters() {
+    let { playerCount } = getUISettings();
+
     const maze = new Maze(canvas.width, canvas.height, CELL_SIZE);
 
     const entrances = [
         { pos: "top-left",      row: 0,                         col: 0 },
-        { pos: "top",           row: 0,                         col: Math.floor(maze.cols / 2) },
         { pos: "top-right",     row: 0,                         col: maze.cols - 1 },
-        { pos: "right",         row: Math.floor(maze.rows / 2), col: maze.cols - 1 },
         { pos: "bottom-right",  row: maze.rows - 1,             col: maze.cols - 1 },
-        { pos: "bottom",        row: maze.rows - 1,             col: Math.floor(maze.cols / 2) },
         { pos: "bottom-left",   row: maze.rows - 1,             col: 0 },
-        { pos: "left",          row: Math.floor(maze.rows / 2), col: 0 }
     ];
 
-    const { playerCount } = getUISettings();
+    if (!isMobile) {
+        const additionalEntrances = [
+            { pos: "top",           row: 0,                         col: Math.floor(maze.cols / 2) },
+            { pos: "right",         row: Math.floor(maze.rows / 2), col: maze.cols - 1 },
+            { pos: "bottom",        row: maze.rows - 1,             col: Math.floor(maze.cols / 2) },
+            { pos: "left",          row: Math.floor(maze.rows / 2), col: 0 }
+        ];
+        entrances.push(...additionalEntrances);
+    } else if (isMobile && playerCount > MAX_MOBILE_PLAYERS) {
+        playerCount = MAX_MOBILE_PLAYERS;
+        playerCountInput.value = MAX_MOBILE_PLAYERS;
+        updateUIElements();
+    }
 
     const players = GameSupport.createPlayers(
         playerCount,
@@ -75,7 +86,7 @@ function startGame() {
 
     if (!game) {
         const { maze, players, cheese, pathfinder } = getGameParameters();
-        game = new Game(ctx, maze, players, cheese, pathfinder);
+        game = new Game(ctx, maze, players, cheese, pathfinder, canvas.width, canvas.height);
     }
 
     game.start();
@@ -101,18 +112,29 @@ function resetGame() {
 }
 
 function resizeCanvas(canvas) {
-    const isMobile = window.innerWidth < 900;
+    isMobile = window.innerWidth < MOBILE_INNER_WIDTH;
+
+    let cols, rows;
 
     if (isMobile) {
-        canvas.width = Math.min(window.innerWidth, 360);
-        canvas.height = Math.floor(window.innerHeight * 0.7);
+        const maxWidth = Math.min(window.innerWidth, MIN_MOBILE_INNER_WIDTH);
+
+        // Number of whole cells that fit
+        cols = Math.floor(maxWidth / CELL_SIZE);
+
+        // Keep maze square (optional, but cleaner)
+        rows = Math.floor(cols * 1.6);
+
     } else {
-        canvas.width = CANVAS_WIDTH;
-        canvas.height = CANVAS_HEIGHT;
+        cols = DESKTOP_CANVAS_WIDTH / CELL_SIZE;
+        rows = DESKTOP_CANVAS_HEIGHT / CELL_SIZE;
     }
 
-    if (game)
-        resetGame();
+    const newWidth = cols * CELL_SIZE;
+    const newHeight = rows * CELL_SIZE;
 
-    return;
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    if (game) resetGame();
 }

@@ -5,12 +5,14 @@
 /*import { GameState } from "./gamestate.js";
 
 export*/class Game {
-    constructor(ctx, maze, players, cheese, pathfinder) {
+    constructor(ctx, maze, players, cheese, pathfinder, canvasWidth, canvasHeight) {
         this.ctx = ctx;
         this.maze = maze;
         this.players = players;
         this.cheese = cheese;
         this.pathfinder = pathfinder;
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
 
         this.state = GameState.STOPPED;
         this.lastTime = 0;
@@ -97,7 +99,7 @@ export*/class Game {
        Render
        -------------------------------- */
     render() {
-        this.ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
         this.#drawMaze();
         this.cheese.draw(this.ctx, this.maze.cellSize);
@@ -182,18 +184,18 @@ export*/class Game {
         ctx.setLineDash([3, 6]);
 
         // Vertical lines
-        for (let x = 0; x <= CANVAS_WIDTH; x += size) {
+        for (let x = 0; x <= this.canvasWidth; x += size) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
-            ctx.lineTo(x, CANVAS_HEIGHT);
+            ctx.lineTo(x, this.canvasHeight);
             ctx.stroke();
         }
 
         // Horizontal lines
-        for (let y = 0; y <= CANVAS_HEIGHT; y += size) {
+        for (let y = 0; y <= this.canvasHeight; y += size) {
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.lineTo(CANVAS_WIDTH, y);
+            ctx.lineTo(this.canvasWidth, y);
             ctx.stroke();
         }
 
@@ -239,13 +241,13 @@ export*/class Game {
 
         // Dark background
         ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
 
         // Box geometry
         const boxW = 320;
         const boxH = 200;
-        const x = (CANVAS_WIDTH - boxW) / 2;
-        const y = (CANVAS_HEIGHT - boxH) / 2;
+        const x = (this.canvasWidth - boxW) / 2;
+        const y = (this.canvasHeight - boxH) / 2;
         const r = 20;
 
         /* -----------------------------
@@ -291,21 +293,21 @@ export*/class Game {
 
         ctx.fillText(
             `${EMOJIS.throphy} ${colorEmoji} ${EMOJIS.throphy}`,
-            CANVAS_WIDTH / 2,
+            this.canvasWidth / 2,
             y + 60
         );
 
         ctx.font = "24px monospace";
         ctx.fillText(
             `${EMOJIS.medal} ${colorName.toUpperCase()} ${winnerEmoji} WINS ${EMOJIS.medal}`,
-            CANVAS_WIDTH / 2,
+            this.canvasWidth / 2,
             y + 120
         );
 
         ctx.font = "16px monospace";
         ctx.fillText(
             `Press Reset for new round!`,
-            CANVAS_WIDTH / 2,
+            this.canvasWidth / 2,
             y + 160
         );
 
