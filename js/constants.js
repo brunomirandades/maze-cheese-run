@@ -3,7 +3,7 @@
 /**
  * Game States
  */
-/*export*/ const GameState = {
+const GameState = {
     RUNNING: "running",
     STOPPED: "stopped",
     ENDED: "ended"

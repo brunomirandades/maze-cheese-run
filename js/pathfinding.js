@@ -1,15 +1,20 @@
-/* ============================
-   DFS Pathfinding for the Maze
-   ============================ */
-
-/*export*/ class DFSPathfinder {
+/**
+ * Path finder class
+ */
+class DFSPathfinder {
+    /**
+     * @param {Object} maze - the maze to be processed
+     */
     constructor(maze) {
         this.maze = maze;
     }
 
-    /* ------------------------------------
-       Find a path from start to target (DFS)
-       ------------------------------------ */
+    /**
+     * Find path between start position and target position (using DFS algo)
+     * @param {Object} start - Start position in maze grid
+     * @param {Object} target - Target position in maze grid
+     * @returns {Object} - Path array
+     */
     findPathDFS(start, target) {
         // Validate input safely
         if (!this.#isValidCell(start) || !this.#isValidCell(target)) {
@@ -51,9 +56,12 @@
         return [];
     }
 
-    /* ------------------------------------
-    Find a path from start to target (BFS)
-    ------------------------------------ */
+    /**
+     * Find the path between the starting maze position and target position (using BFS algo)
+     * @param {Object} start - Start position in the maze grid
+     * @param {Object} target - Target position in the maze grid
+     * @returns {Object} - Path array
+     */
     findPathBFS(start, target) {
         // Validate input safely
         if (!this.#isValidCell(start) || !this.#isValidCell(target)) {
@@ -96,10 +104,12 @@
         return [];
     }
 
-
-    /* ------------------------------------
-       Get walkable neighbors from a cell
-       ------------------------------------ */
+    /**
+     * Get valid neighbors for the given cell by checking
+     * the surround cells if the walls between them are blocked 
+     * @param {Object} cell - Cell being checked
+     * @returns {Array} - Collection of valid neighbors
+     */
     #getValidNeighbors(cell) {
         const { row, col } = cell;
         const result = [];
@@ -121,9 +131,12 @@
         return result;
     }
 
-    /* ------------------------------------
-       Rebuild path from DFS parents
-       ------------------------------------ */
+    /**
+     * Support method to macke the final path calculated by algo
+     * @param {Array} parentMap - Calculated path by algo
+     * @param {Object} endCell - End position path cell 
+     * @returns {Array} - Ajusted path in reverse order (start to target)
+     */
     #reconstructPath(parentMap, endCell) {
         const path = [];
         let current = endCell;
@@ -138,9 +151,11 @@
         return path.reverse();
     }
 
-    /* ------------------------------------
-       Input validation
-       ------------------------------------ */
+    /**
+     * Check if the cell is valid - inside the canvas
+     * @param {Object} cell - Cell to be checked
+     * @returns {boolean} - True if valid cell 
+     */
     #isValidCell(cell) {
         return (
             cell &&

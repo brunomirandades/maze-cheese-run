@@ -1,9 +1,4 @@
-// import { Maze } from "./maze.js";
-// import { DFSPathfinder } from "./pathfinding.js";
-// import { Player, Cheese } from "./player.js";
-// import { Game } from "./game.js";
-// import { UIController } from "./ui.js";
-
+// Getting canvas and context from DOM
 const {canvas, ctx} = GameSupport.getCanvasContext();
 
 let game = null;
@@ -18,12 +13,17 @@ document.getElementById("resetBtn").onclick = resetGame;
 const playerCountLabel = document.getElementById("player-count-value");
 const playerCountInput = document.getElementById("player-count");
 
+// Updating the players label according to slider position
 playerCountInput.addEventListener("input", () => {
     playerCountLabel.textContent = parseInt(playerCountInput.value);
 });
 
 updateUIElements();
 
+/**
+ * Update UI elements' events
+ * @returns void
+ */
 function updateUIElements() {
     playerCountInput.dispatchEvent(new Event('input'));
 
@@ -31,6 +31,10 @@ function updateUIElements() {
     return;
 }
 
+/**
+ * Get the game settings from UI elements
+ * @returns {Object} UI settings elements values
+ */
 function getUISettings() {
     const playerCount = parseInt(playerCountInput.value);
 
@@ -39,6 +43,10 @@ function getUISettings() {
     return { playerCount };
 }
 
+/**
+ * Get the parameters necessary to create a new game
+ * @returns {Object} parameters for a new game
+ */
 function getGameParameters() {
     let { playerCount } = getUISettings();
 
@@ -81,6 +89,10 @@ function getGameParameters() {
     };
 }
 
+/**
+ * Start game if paused or create a new game if none running
+ * @returns {void}
+ */
 function startGame() {
     if (game && game.state == GameState.RUNNING) return;    // avoid double loops
 
@@ -90,27 +102,34 @@ function startGame() {
     }
 
     game.start();
-    return;
 }
 
+/**
+ * Force stop the game if running 
+ * @returns {void}
+ */
 function stopGame() {
     if (!game) return;
     
-    // TODO: check if needed to add a game
-    // animationId and cancelAnimationFrame
     game.stop();
-    return;
 }
 
+/**
+ * Force stop the game and start a new one
+ * @returns {void}
+ */
 function resetGame() {
     stopGame();
 
     game = null;
 
     startGame();
-    return;
 }
 
+/**
+ * Resize the canvas according to the type and size of the screen
+ * @param {Object} canvas 
+ */
 function resizeCanvas(canvas) {
     isMobile = window.innerWidth < MOBILE_INNER_WIDTH;
 

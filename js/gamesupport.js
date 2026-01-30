@@ -57,13 +57,13 @@ class GameSupport {
         for (let i = 0; i < count; i++) {
             const speed = BASE_SPEED * (1 + Math.random() * 0.3);
 
-            players.push(new Player({
-                row: selectedEntrances[i].row,
-                col: selectedEntrances[i].col,
-                emoji: EMOJIS.mouse,
+            players.push(new Player(
+                selectedEntrances[i].row,
+                selectedEntrances[i].col,
+                EMOJIS.mouse,
                 speed,
-                color: COLORS[i % COLORS.length]
-            }));
+                COLORS[i % COLORS.length]
+            ));
         }
         
         return players;

@@ -1,10 +1,16 @@
-/* ============================
-   Game Engine
-   ============================ */
-
-/*import { GameState } from "./gamestate.js";
-
-export*/class Game {
+/**
+ * Game engine class
+ */
+class Game {
+    /**
+     * @param {Object} ctx - Canvas context
+     * @param {Object} maze - New maze object
+     * @param {Array} players - List of player objects
+     * @param {Object} cheese - New cheese object 
+     * @param {Object} pathfinder - New pathfinder object to calculate maze paths 
+     * @param {number} canvasWidth - Width of the canvas bounds
+     * @param {number} canvasHeight - Height of the canvas bounds
+     */
     constructor(ctx, maze, players, cheese, pathfinder, canvasWidth, canvasHeight) {
         this.ctx = ctx;
         this.maze = maze;
@@ -23,9 +29,10 @@ export*/class Game {
         this.#setPlayersPaths();
     }
 
-    /* --------------------------------
-       Start game
-       -------------------------------- */
+    /**
+     * Start the game animation of not running
+     * @returns {void}
+     */
     start() {
         if (this.state === GameState.RUNNING) return;
 
@@ -34,9 +41,10 @@ export*/class Game {
         this.animationId = requestAnimationFrame(this.#loop.bind(this));
     }
 
-    /* --------------------------------
-       Stop (pause)
-       -------------------------------- */
+    /**
+     * Stop the game if running and cancel animation frame
+     * @returns {void}
+     */
     stop() {
         if (this.state !== GameState.RUNNING) return;
         
@@ -44,9 +52,11 @@ export*/class Game {
         cancelAnimationFrame(this.animationId);
     }
 
-    /* --------------------------------
-       Main loop
-       -------------------------------- */
+    /**
+     * Game animation loop
+     * @param {number} timestamp 
+     * @returns {void}
+     */
     #loop(timestamp) {
         if (this.state !== GameState.RUNNING) return;
 
@@ -59,9 +69,11 @@ export*/class Game {
         this.animationId = requestAnimationFrame(this.#loop.bind(this));
     }
 
-    /* --------------------------------
-       Update logic
-       -------------------------------- */
+    /**
+     * Update the game screen to generate animation
+     * @param {number} deltaTime - time diff between animation frames
+     * @returns {void}
+     */
     update(deltaTime) {
         // Move players
         for (const player of this.players) {
@@ -72,6 +84,10 @@ export*/class Game {
         this.#checkWin();
     }
 
+    /**
+     * Define the path inside the maze for each player in the players list
+     * @returns {void}
+     */
     #setPlayersPaths() {
         const strategies = [
             this.pathfinder.findPathBFS.bind(this.pathfinder),
@@ -85,9 +101,10 @@ export*/class Game {
         }
     }
 
-    /* --------------------------------
-       Win logic
-       -------------------------------- */
+    /**
+     * Check the game win condition
+     * @returns {void}
+     */
     #checkWin() {
         for (const player of this.players) {
             if (player.isOnSameCell(this.cheese)) {
@@ -98,9 +115,10 @@ export*/class Game {
         }
     }
 
-    /* --------------------------------
-       Render
-       -------------------------------- */
+    /**
+     * Render routine for all the game elements
+     * @returns {void}
+     */
     render() {
         this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
 
@@ -122,17 +140,15 @@ export*/class Game {
             );
         }
 
-        // Debug
-        // this.#drawGrid();
-
         if (this.state === GameState.ENDED) {
             this.#drawWinScreen();
         }
     }
 
-    /* --------------------------------
-       Maze drawing
-       -------------------------------- */
+    /**
+     * Draw the maze on canvas
+     * @returns {void}
+     */
     #drawMaze() {
         const size = this.maze.cellSize;
         const ctx = this.ctx;
@@ -173,38 +189,15 @@ export*/class Game {
         }
     }
 
-    #drawGrid() {
-        const ctx = this.ctx;
-        const size = this.maze.cellSize;
-
-        ctx.save();
-
-        // Light, non-intrusive color
-        ctx.strokeStyle = "rgba(0,0,0,0.15)";
-        ctx.lineWidth = 1;
-
-        // Dotted lines
-        ctx.setLineDash([3, 6]);
-
-        // Vertical lines
-        for (let x = 0; x <= this.canvasWidth; x += size) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, this.canvasHeight);
-            ctx.stroke();
-        }
-
-        // Horizontal lines
-        for (let y = 0; y <= this.canvasHeight; y += size) {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(this.canvasWidth, y);
-            ctx.stroke();
-        }
-
-        ctx.restore(); // important so dash does not affect other drawings
-    }
-
+    /**
+     * Draw player's path
+     * @param {Object} path - Path object with draw directions
+     * @param {number} index - Path array current index
+     * @param {number} playerX - Player's X position 
+     * @param {number} playerY - Player's Y position
+     * @param {string} color - Player's color hex
+     * @returns 
+     */
     #drawPath(path, index, playerX, playerY, color) {
         if (!path || path.length < 2 || index <= 0) return;
 
@@ -236,9 +229,10 @@ export*/class Game {
         ctx.restore();
     }
 
-    /* --------------------------------
-    Draw Win Screen
-    -------------------------------- */
+    /**
+     * Draw win screen card on canvas showing winning player
+     * @returns {void}
+     */
     #drawWinScreen() {
         const ctx = this.ctx;
 

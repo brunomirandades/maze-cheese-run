@@ -1,8 +1,12 @@
-/* ============================
-   Maze Generator (Secure, Modern)
-   ============================ */
-
-/*export*/ class Maze {
+/**
+ * Maze builder class
+ */
+class Maze {
+    /**
+     * @param {number} canvasWidth 
+     * @param {number} canvasHeight 
+     * @param {number} cellSize 
+     */
     constructor(canvasWidth, canvasHeight, cellSize = 20) {
         this.cellSize = cellSize;
 
@@ -17,9 +21,10 @@
         this.#generateMaze();
     }
 
-    /* --------------------------
-       Create empty grid
-       -------------------------- */
+    /**
+     * Create Maze grids
+     * @returns {void}
+     */
     #createGrid() {
         for (let row = 0; row < this.rows; row++) {
             this.grid[row] = [];
@@ -39,9 +44,10 @@
         }
     }
 
-    /* --------------------------------------
-       Recursive Backtracking Maze
-       -------------------------------------- */
+    /**
+     * Generate Maze structure according to grid
+     * @returns {void}
+     */
     #generateMaze() {
         const stack = [];
         let current = this.grid[0][0];
@@ -61,6 +67,11 @@
         } while (stack.length > 0);
     }
 
+    /**
+     * Get a random unvisited neighbor of the passing cell
+     * @param {Object} cell - Grid cell to be checked
+     * @returns {Array} - Returns an array of valid unvisited neighbors
+     */
     #getRandomUnvisitedNeighbor(cell) {
         const { row, col } = cell;
         const neighbors = [];
@@ -91,30 +102,39 @@
         return neighbors[index];
     }
 
-    #removeWalls(a, b) {
-        const x = a.col - b.col;
-        const y = a.row - b.row;
+    /**
+     * Remove walls between two cells
+     * @param {Object} current - Current cell
+     * @param {Object} next - Next neighbor cell 
+     */
+    #removeWalls(current, next) {
+        const x = current.col - next.col;
+        const y = current.row - next.row;
 
         if (x === 1) {
-            a.walls.left = false;
-            b.walls.right = false;
+            current.walls.left = false;
+            next.walls.right = false;
         } else if (x === -1) {
-            a.walls.right = false;
-            b.walls.left = false;
+            current.walls.right = false;
+            next.walls.left = false;
         }
 
         if (y === 1) {
-            a.walls.top = false;
-            b.walls.bottom = false;
+            current.walls.top = false;
+            next.walls.bottom = false;
         } else if (y === -1) {
-            a.walls.bottom = false;
-            b.walls.top = false;
+            current.walls.bottom = false;
+            next.walls.top = false;
         }
     }
 
-    /* --------------------------------
-       Public method for collision grid
-       -------------------------------- */
+    /**
+     * Check if a cell's given direction is blocked
+     * @param {number} row - cell row
+     * @param {number} col - cell column
+     * @param {string} direction - cell direction (top, right, bottom, left) 
+     * @returns {boolean} - returns true if the given direction contains a wall
+     */
     isBlocked(row, col, direction) {
         return this.grid[row][col].walls[direction];
     }
