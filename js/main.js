@@ -141,7 +141,7 @@ function resizeCanvas(canvas) {
         // Number of whole cells that fit
         cols = Math.floor(maxWidth / CELL_SIZE);
 
-        // Keep maze square (optional, but cleaner)
+        // Keep maze square
         rows = Math.floor(cols * 1.6);
 
     } else {
